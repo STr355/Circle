@@ -4,8 +4,9 @@ import random
 pygame.init()
 windowWidth = 2560
 windowHeight = 1380
-window = pygame.display.set_mode((windowWidth, windowHeight))
-window.fill([255, 255, 255])
+BLACK = [0, 0, 0]
+window = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+window.fill(BLACK)
 pygame.display.flip()
 pygame.display.set_caption("Snake")
 run = True
@@ -20,6 +21,7 @@ class Circle:
         self.radius = radius
         self.xDir = 0
         self.yDir = 0
+        self.velocity = 0
         self.generateDirection()
 
     def draw(self):
@@ -42,6 +44,9 @@ class Circle:
     def generateDirection(self):
         self.xDir = random.randint(-2, 2)
         self.yDir = random.randint(-2, 2)
+        self.vel = self.xDir * self.yDir
+        if self.xDir == 0 and self.yDir == 0:
+            self.generateDirection()
 
     def move(self):
         self.xPos += self.xDir
@@ -70,12 +75,19 @@ class Circle:
             self.xDir = random.randint(-2, 2)
         self.generateNewColor()
 
+    def bounceOffCircle(self):
+        pass
+
+
 circles = []
 circle = Circle(window, windowWidth / 2, windowHeight / 2, random.randint(10, 50))
 circles.append(circle)
 while run:
     if random.randint(1, 1000) > 990:
-        circles.append(Circle(window, windowWidth / 2, windowHeight/2, random.randint(10, 50)))
+        circles.append(
+            Circle(window, random.randint(0, windowWidth), random.randint(0, windowHeight), random.randint(10, 150)))
+        if len(circles) > 200:
+            circles.pop()
     pygame.time.delay(5)
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -87,7 +99,9 @@ while run:
         circle.increaseRadius()
     elif keys[pygame.K_DOWN]:
         circle.reduceRadius()
-
+    elif keys[pygame.K_ESCAPE]:
+        run = False
+    window.fill(BLACK)
     for circle in circles:
         circle.draw()
         circle.move()
